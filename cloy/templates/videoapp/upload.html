@@ -1,0 +1,147 @@
+{% extends 'videoapp/base.html' %}
+
+{% block title %}Upload Your Video{% endblock title %}
+
+{% block content %}
+<br/><br/>
+
+<h1>Upload your video and enjoy!</h1>
+<form action="" method="post" enctype="multipart/form-data">
+    
+    {% csrf_token %}
+    <p id="welcome-label">choice your video:</p>
+    <center>
+        <input type="file" name="video" id="FileInput" accept=".mp4"><br>
+        <input type="hidden" id="fileNameField" name="file_name">
+        <button type="button" onclick="previewVideo()" id="preview-button">Preview Video</button>
+        
+    </center>
+
+    {% if video_url %}
+        <script>var flag = "T";</script>
+        <center>
+            <video width="320" height="240" controls>
+                <source src="{{ video_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </center>
+        <br/>
+
+        <center>
+            <button id="download-button"><a href="{{ video_url }}" download="{{ video.video_name }}">Download Video</a></button>
+        </center>
+    {% endif %}
+
+    <div id="video-preview" style="display: none;">
+        <center>
+            <video controls id="selected-video" width="400"></video><br/><br/>
+            <p>add some subtitle to your video now:</p>
+
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <input type="hidden" id="itorater" name="itorater">
+                <input class="video-values" type="text" id="text" placeholder="subtitle" style="width: 400px;" name="text">
+                <input class="video-values" type="tel" id="D" placeholder="00:00:00,000"  style="width: 80px;" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}" name="during">
+                <input class="video-values" type="tel" id="T" placeholder="00:00:00,000"  style="width: 80px;" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}" name="time">  
+                <button class="button-77" role="button" type="submit" name="action" value="srtsubmit" onclick="addfunc()">add</button>
+                
+
+            </div>
+            <br/><br/><br/><br/>
+
+        <h4 id="NextLabel">after u are done adding all your subtitle click next</h4>
+        <button class="button-77" role="button" type="button" id="coordinates" onclick="NextButton()">Next</button>
+        <br/><br/><br/><br/>
+            <div style="display: none;" id="coordinatesdiv">
+                <p>add the text position and it's size:</p>
+                
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <input class="video-values" type="text" id="X" placeholder="X" name="x" maxlength=5  style="width: 80px;">
+                    <input class="video-values" type="text" id="Y" placeholder="Y" name="y" maxlength=5  style="width: 80px;">           
+                    <input class="video-values" type="text" id="S" placeholder="Size" name="z" maxlength= 2  style="width: 80px;">
+                    <button class="button-77" role="button" type="submit" onclick="" id="set" name="set" value="set_coordinate">set</button> 
+            {% comment %} <button class="button-77" role="button" type="submit" style="display: none;" id="upload" name="action" value="videosubmit">           {% endcomment %}
+                </div>
+                <h4>if u didnt set a values, a default values will be applied</h4>
+            </div>
+            
+            <button class="button-77" role="button" type="submit" style="display: none;" id="upload" name="action" value="videosubmit">Generate</button>
+        </center>
+    
+    </div>
+
+</form>
+
+
+
+<script>
+
+// {% comment %} to add the str itoratation value to hidden field: {% endcomment %}
+    function addfunc() {
+        const itorater = document.getElementById('itorater');
+        const it = parseInt(itorater.value);
+        if (isNaN(it)) {
+            itorater.value = 1;
+        } else {
+            itorater.value = it + 1;
+        }
+    }
+
+    // {% comment %} to see if the user click next to set the subtitle coordinates values {% endcomment %}
+    function NextButton(){
+        const div = document.getElementById('coordinatesdiv');
+        const button = document.getElementById('coordinates');
+        const label = document.getElementById("NextLabel");
+        const upload = document.getElementById("upload");
+        upload.style.display='block';
+        if (div.style.display === 'none') {
+            div.style.display = 'block'; // Show the div
+            button.style.display= 'none';
+            label.style.display= 'none';
+        } else {
+            div.style.display = 'none'; // Hide the div
+        }
+    }
+    
+    // {% comment %} to hide the welcom label and select button after the selection process {% endcomment %}
+    
+    if (typeof flag !== "undefined") {
+        document.getElementById("FileInput").style.display = "none";
+        // {% comment %} document.getElementById("upload-button").style.display = "none"; {% endcomment %}
+        document.getElementById("welcome-label").style.display = "none"; 
+      }
+
+    
+    // {% comment %} to show the video that user select befor upload it {% endcomment %}
+    function previewVideo() {
+
+        document.getElementById("FileInput").style.display = "none";
+        document.getElementById("welcome-label").style.display = "none"; 
+        document.getElementById("preview-button").style.display = "none";
+        
+        const filename= document.getElementById("fileNameField");
+        const videoInput = document.getElementById("FileInput");
+        const videoPreview = document.getElementById("video-preview");
+        const selectedVideo = document.getElementById("selected-video");
+
+        if (videoInput.files.length > 0) {
+            const selectedFileName = videoInput.files[0].name;
+            fileNameField.value = selectedFileName; // Set the file name in the hidden input
+        } else {
+            fileNameField.value = ''; // Clear the file name if no file selected
+        }
+
+        if (videoInput.files.length > 0) {
+            const file = videoInput.files[0];
+            const objectURL = URL.createObjectURL(file);
+
+            // Display the video preview
+            videoPreview.style.display = "block";
+            selectedVideo.src = objectURL;
+        } else {
+            alert("Please select a video file first.");
+            window.location.reload();
+        }
+    }
+</script>
+
+{% endblock content %}
